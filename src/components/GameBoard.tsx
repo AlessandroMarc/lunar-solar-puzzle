@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Cell } from "./Cell";
 import { GameConstraint } from "./GameConstraint";
 import { validateMove, checkGameCompletion } from "../utils/gameLogic";
@@ -31,7 +31,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ size, onGameComplete }) =>
 		"2,2-3,2": { type: "x", position: "vertical" }
 	};
 
-	const checkViolations = (board: CellValue[][]) => {
+	const checkViolations = useCallback((board: CellValue[][]) => {
 		const newViolations: Violation[] = [];
 
 		// Check for three in a row horizontally
@@ -97,7 +97,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ size, onGameComplete }) =>
 
 		setViolations(newViolations);
 		return newViolations.length === 0;
-	};
+	}, [size]);
 
 	useEffect(() => {
 		console.log("Current board state:", board);
@@ -108,7 +108,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ size, onGameComplete }) =>
 			console.log("Game completed!");
 			onGameComplete();
 		}
-	}, [board, onGameComplete]);
+	}, [board, onGameComplete, checkViolations]);
 
 	const handleCellClick = (row: number, col: number) => {
 		console.log(`Cell clicked at ${row},${col}`);
