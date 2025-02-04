@@ -32,7 +32,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ size, onGameComplete }) =>
       console.log('Game completed!');
       onGameComplete();
     }
-  }, [board]);
+  }, [board, onGameComplete]); // Added onGameComplete to the dependency array
 
   const handleCellClick = (row: number, col: number) => {
     console.log(`Cell clicked at ${row},${col}`);
