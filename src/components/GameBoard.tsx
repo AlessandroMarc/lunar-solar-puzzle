@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Cell } from "./Cell";
 import { GameConstraint } from "./GameConstraint";
 import { validateMove, checkGameCompletion } from "../utils/gameLogic";
@@ -31,73 +31,72 @@ export const GameBoard: React.FC<GameBoardProps> = ({ size, onGameComplete }) =>
 		"2,2-3,2": { type: "x", position: "vertical" }
 	};
 
-	const checkViolations = (board: CellValue[][]) => {
-		const newViolations: Violation[] = [];
+	const checkViolations = useCallback(
+		(board: CellValue[][]) => {
+			const newViolations: Violation[] = [];
 
-		// Check for three in a row horizontally
-		for (let row = 0; row < size; row++) {
-			for (let col = 0; col < size - 2; col++) {
-				if (board[row][col] && 
-					board[row][col] === board[row][col + 1] && 
-					board[row][col] === board[row][col + 2]) {
+			// Check for three in a row horizontally
+			for (let row = 0; row < size; row++) {
+				for (let col = 0; col < size - 2; col++) {
+					if (board[row][col] && board[row][col] === board[row][col + 1] && board[row][col] === board[row][col + 2]) {
+						newViolations.push({
+							type: "three-in-row",
+							positions: [
+								{ row, col },
+								{ row, col: col + 1 },
+								{ row, col: col + 2 }
+							]
+						});
+					}
+				}
+			}
+
+			// Check for three in a row vertically
+			for (let row = 0; row < size - 2; row++) {
+				for (let col = 0; col < size; col++) {
+					if (board[row][col] && board[row][col] === board[row + 1][col] && board[row][col] === board[row + 2][col]) {
+						newViolations.push({
+							type: "three-in-row",
+							positions: [
+								{ row, col },
+								{ row: row + 1, col },
+								{ row: row + 2, col }
+							]
+						});
+					}
+				}
+			}
+
+			// Check for unbalanced rows
+			for (let row = 0; row < size; row++) {
+				const suns = board[row].filter(cell => cell === "sun").length;
+				const moons = board[row].filter(cell => cell === "moon").length;
+				if (suns > 3 || moons > 3) {
 					newViolations.push({
-						type: "three-in-row",
-						positions: [
-							{ row, col },
-							{ row, col: col + 1 },
-							{ row, col: col + 2 }
-						]
+						type: "unbalanced-row",
+						positions: board[row].map((_, col) => ({ row, col }))
 					});
 				}
 			}
-		}
 
-		// Check for three in a row vertically
-		for (let row = 0; row < size - 2; row++) {
+			// Check for unbalanced columns
 			for (let col = 0; col < size; col++) {
-				if (board[row][col] && 
-					board[row][col] === board[row + 1][col] && 
-					board[row][col] === board[row + 2][col]) {
+				const column = board.map(row => row[col]);
+				const suns = column.filter(cell => cell === "sun").length;
+				const moons = column.filter(cell => cell === "moon").length;
+				if (suns > 3 || moons > 3) {
 					newViolations.push({
-						type: "three-in-row",
-						positions: [
-							{ row, col },
-							{ row: row + 1, col },
-							{ row: row + 2, col }
-						]
+						type: "unbalanced-column",
+						positions: column.map((_, row) => ({ row, col }))
 					});
 				}
 			}
-		}
 
-		// Check for unbalanced rows
-		for (let row = 0; row < size; row++) {
-			const suns = board[row].filter(cell => cell === "sun").length;
-			const moons = board[row].filter(cell => cell === "moon").length;
-			if (suns > 3 || moons > 3) {
-				newViolations.push({
-					type: "unbalanced-row",
-					positions: board[row].map((_, col) => ({ row, col }))
-				});
-			}
-		}
-
-		// Check for unbalanced columns
-		for (let col = 0; col < size; col++) {
-			const column = board.map(row => row[col]);
-			const suns = column.filter(cell => cell === "sun").length;
-			const moons = column.filter(cell => cell === "moon").length;
-			if (suns > 3 || moons > 3) {
-				newViolations.push({
-					type: "unbalanced-column",
-					positions: column.map((_, row) => ({ row, col }))
-				});
-			}
-		}
-
-		setViolations(newViolations);
-		return newViolations.length === 0;
-	};
+			setViolations(newViolations);
+			return newViolations.length === 0;
+		},
+		[size]
+	);
 
 	useEffect(() => {
 		console.log("Current board state:", board);
@@ -108,7 +107,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ size, onGameComplete }) =>
 			console.log("Game completed!");
 			onGameComplete();
 		}
-	}, [board, onGameComplete]);
+	}, [board, onGameComplete, checkViolations]);
 
 	const handleCellClick = (row: number, col: number) => {
 		console.log(`Cell clicked at ${row},${col}`);
@@ -130,9 +129,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ size, onGameComplete }) =>
 	};
 
 	const isViolatingCell = (row: number, col: number) => {
-		return violations.some(violation =>
-			violation.positions.some(pos => pos.row === row && pos.col === col)
-		);
+		return violations.some(violation => violation.positions.some(pos => pos.row === row && pos.col === col));
 	};
 
 	return (
@@ -150,24 +147,14 @@ export const GameBoard: React.FC<GameBoardProps> = ({ size, onGameComplete }) =>
 					<React.Fragment key={rowIndex}>
 						{row.map((cell, colIndex) => (
 							<React.Fragment key={`${rowIndex}-${colIndex}`}>
-								<Cell 
-									value={cell} 
-									onClick={() => handleCellClick(rowIndex, colIndex)}
-									isViolating={isViolatingCell(rowIndex, colIndex)}
-								/>
+								<Cell value={cell} onClick={() => handleCellClick(rowIndex, colIndex)} isViolating={isViolatingCell(rowIndex, colIndex)} />
 								{Object.entries(constraints).map(([key, constraint]) => {
 									const [pos1, pos2] = key.split("-");
 									const [row1, col1] = pos1.split(",").map(Number);
 									const [row2, col2] = pos2.split(",").map(Number);
 
 									if (row1 === rowIndex && col1 === colIndex) {
-										return (
-											<GameConstraint 
-												key={`constraint-${key}`} 
-												type={constraint.type} 
-												position={constraint.position} 
-											/>
-										);
+										return <GameConstraint key={`constraint-${key}`} type={constraint.type} position={constraint.position} />;
 									}
 									return null;
 								})}
