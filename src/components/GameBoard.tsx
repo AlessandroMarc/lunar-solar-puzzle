@@ -75,28 +75,29 @@ export const GameBoard: React.FC<GameBoardProps> = ({ size, onGameComplete }) =>
         {board.map((row, rowIndex) => (
           <React.Fragment key={rowIndex}>
             {row.map((cell, colIndex) => (
-              <Cell
-                key={`${rowIndex}-${colIndex}`}
-                value={cell}
-                onClick={() => handleCellClick(rowIndex, colIndex)}
-              />
+              <React.Fragment key={`${rowIndex}-${colIndex}`}>
+                <Cell
+                  value={cell}
+                  onClick={() => handleCellClick(rowIndex, colIndex)}
+                />
+                {Object.entries(constraints).map(([key, constraint]) => {
+                  const [pos1, pos2] = key.split('-');
+                  const [row1, col1] = pos1.split(',').map(Number);
+                  const [row2, col2] = pos2.split(',').map(Number);
+                  
+                  if (row1 === rowIndex && col1 === colIndex) {
+                    return (
+                      <GameConstraint
+                        key={`constraint-${key}`}
+                        type={constraint.type}
+                        position={constraint.position}
+                      />
+                    );
+                  }
+                  return null;
+                })}
+              </React.Fragment>
             ))}
-            {Object.entries(constraints).map(([key, constraint]) => {
-              const [pos1, pos2] = key.split('-');
-              const [row1, col1] = pos1.split(',').map(Number);
-              const [row2, col2] = pos2.split(',').map(Number);
-              
-              if (row1 === rowIndex && col1 === colIndex) {
-                return (
-                  <GameConstraint
-                    key={key}
-                    type={constraint.type}
-                    position={constraint.position}
-                  />
-                );
-              }
-              return null;
-            })}
           </React.Fragment>
         ))}
       </div>
