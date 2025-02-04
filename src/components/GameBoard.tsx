@@ -133,7 +133,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ size, onGameComplete }) =>
 	};
 
 	return (
-		<div className="flex flex-col items-center gap-4">
+		<div className="flex flex-col items-center gap-4 p-4 touch-none">
 			<div className="text-xl font-semibold text-white mb-4">Moves: {moveCount}</div>
 			<div
 				className="relative grid gap-1"
@@ -141,20 +141,32 @@ export const GameBoard: React.FC<GameBoardProps> = ({ size, onGameComplete }) =>
 					gridTemplateColumns: `repeat(${size}, 1fr)`,
 					backgroundColor: "rgba(255, 255, 255, 0.1)",
 					padding: "1rem",
-					borderRadius: "0.5rem"
+					borderRadius: "0.5rem",
+					maxWidth: "100vw",
+					touchAction: "none"
 				}}>
 				{board.map((row, rowIndex) => (
 					<React.Fragment key={rowIndex}>
 						{row.map((cell, colIndex) => (
 							<React.Fragment key={`${rowIndex}-${colIndex}`}>
-								<Cell value={cell} onClick={() => handleCellClick(rowIndex, colIndex)} isViolating={isViolatingCell(rowIndex, colIndex)} />
+								<Cell 
+									value={cell} 
+									onClick={() => handleCellClick(rowIndex, colIndex)} 
+									isViolating={isViolatingCell(rowIndex, colIndex)} 
+								/>
 								{Object.entries(constraints).map(([key, constraint]) => {
 									const [pos1, pos2] = key.split("-");
 									const [row1, col1] = pos1.split(",").map(Number);
 									const [row2, col2] = pos2.split(",").map(Number);
 
 									if (row1 === rowIndex && col1 === colIndex) {
-										return <GameConstraint key={`constraint-${key}`} type={constraint.type} position={constraint.position} />;
+										return (
+											<GameConstraint 
+												key={`constraint-${key}`} 
+												type={constraint.type} 
+												position={constraint.position} 
+											/>
+										);
 									}
 									return null;
 								})}
