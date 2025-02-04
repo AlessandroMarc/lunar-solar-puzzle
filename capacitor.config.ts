@@ -1,16 +1,20 @@
-import { CapacitorConfig } from '@capacitor/cli';
+import { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: 'dev.lovable.lunarsolar',
-  appName: 'Lunar Solar Puzzle',
-  webDir: 'dist',
-  server: {
-    url: 'https://c3506715-7a84-4bd6-9849-51f2de13bba8.lovableproject.com?forceHideBadge=true',
-    cleartext: true
-  },
-  ios: {
-    contentInset: 'always'
-  }
+	appId: "com.lunarsolar.puzzle",
+	appName: "Lunar Solar Puzzle",
+	webDir: "dist",
+	server: {
+		iosScheme: "ionic",
+		cleartext: true
+	},
+	plugins: {
+		LiveUpdates: {
+			appId: "com.lunarsolar.puzzle",
+			channel: "development",
+			autoUpdateMethod: "none"
+		}
+	}
 };
 
 export default config;
