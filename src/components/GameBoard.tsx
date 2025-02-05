@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { View, Text, StyleSheet, Dimensions } from "react-native";
 import { Cell } from "./Cell";
 import { GameConstraint } from "./GameConstraint";
 import { validateMove, checkGameCompletion } from "../utils/gameLogic";
@@ -133,18 +134,12 @@ export const GameBoard: React.FC<GameBoardProps> = ({ size, onGameComplete }) =>
 	};
 
 	return (
-		<div className="flex flex-col items-center gap-4 p-4 touch-none">
-			<div className="text-xl font-semibold text-white mb-4">Moves: {moveCount}</div>
-			<div
-				className="relative grid gap-1"
-				style={{
-					gridTemplateColumns: `repeat(${size}, 1fr)`,
-					backgroundColor: "rgba(255, 255, 255, 0.1)",
-					padding: "1rem",
-					borderRadius: "0.5rem",
-					maxWidth: "100vw",
-					touchAction: "none"
-				}}>
+		<View style={styles.container}>
+			<Text style={styles.moveCount}>Moves: {moveCount}</Text>
+			<View style={[
+				styles.grid,
+				{ width: Math.min(Dimensions.get('window').width - 32, 400) }
+			]}>
 				{board.map((row, rowIndex) => (
 					<React.Fragment key={rowIndex}>
 						{row.map((cell, colIndex) => (
@@ -174,7 +169,28 @@ export const GameBoard: React.FC<GameBoardProps> = ({ size, onGameComplete }) =>
 						))}
 					</React.Fragment>
 				))}
-			</div>
-		</div>
+			</View>
+		</View>
 	);
 };
+
+const styles = StyleSheet.create({
+	container: {
+		alignItems: 'center',
+		padding: 16,
+	},
+	moveCount: {
+		fontSize: 20,
+		fontWeight: '600',
+		color: 'white',
+		marginBottom: 16,
+	},
+	grid: {
+		flexDirection: 'row',
+		flexWrap: 'wrap',
+		backgroundColor: 'rgba(255, 255, 255, 0.1)',
+		padding: 16,
+		borderRadius: 8,
+		gap: 4,
+	},
+});
