@@ -1,3 +1,4 @@
+
 import React from "react";
 import { TouchableOpacity, StyleSheet, Platform } from "react-native";
 import type { CellValue } from "./GameBoard";
@@ -11,7 +12,12 @@ interface CellProps {
 
 export const Cell: React.FC<CellProps> = ({ value, onClick, isViolating = false }) => {
 	return (
-		<TouchableOpacity onPress={onClick} style={[styles.cell, isViolating ? styles.violatingCell : styles.normalCell]}>
+		<TouchableOpacity 
+			onPress={onClick} 
+			style={[styles.cell, isViolating ? styles.violatingCell : styles.normalCell]}
+			accessibilityRole="button"
+			accessibilityLabel={value || "empty"}
+		>
 			{value === "sun" && <Feather name="sun" size={32} color={isViolating ? "#FCA5A5" : "#FFD700"} />}
 			{value === "moon" && <Feather name="moon" size={32} color={isViolating ? "#FCA5A5" : "#C0C0C0"} />}
 		</TouchableOpacity>
