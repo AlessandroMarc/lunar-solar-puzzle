@@ -136,32 +136,19 @@ export const GameBoard: React.FC<GameBoardProps> = ({ size, onGameComplete }) =>
 	return (
 		<View style={styles.container}>
 			<Text style={styles.moveCount}>Moves: {moveCount}</Text>
-			<View style={[
-				styles.grid,
-				{ width: Math.min(Dimensions.get('window').width - 32, 400) }
-			]}>
+			<View style={[styles.grid, { width: Math.min(Dimensions.get("window").width - 32, 400) }]}>
 				{board.map((row, rowIndex) => (
 					<React.Fragment key={rowIndex}>
 						{row.map((cell, colIndex) => (
 							<React.Fragment key={`${rowIndex}-${colIndex}`}>
-								<Cell 
-									value={cell} 
-									onClick={() => handleCellClick(rowIndex, colIndex)} 
-									isViolating={isViolatingCell(rowIndex, colIndex)} 
-								/>
+								<Cell value={cell} onClick={() => handleCellClick(rowIndex, colIndex)} isViolating={isViolatingCell(rowIndex, colIndex)} />
 								{Object.entries(constraints).map(([key, constraint]) => {
 									const [pos1, pos2] = key.split("-");
 									const [row1, col1] = pos1.split(",").map(Number);
 									const [row2, col2] = pos2.split(",").map(Number);
 
 									if (row1 === rowIndex && col1 === colIndex) {
-										return (
-											<GameConstraint 
-												key={`constraint-${key}`} 
-												type={constraint.type} 
-												position={constraint.position} 
-											/>
-										);
+										return <GameConstraint key={`constraint-${key}`} type={constraint.type} position={constraint.position} />;
 									}
 									return null;
 								})}
@@ -176,21 +163,21 @@ export const GameBoard: React.FC<GameBoardProps> = ({ size, onGameComplete }) =>
 
 const styles = StyleSheet.create({
 	container: {
-		alignItems: 'center',
-		padding: 16,
+		alignItems: "center",
+		padding: 16
 	},
 	moveCount: {
 		fontSize: 20,
-		fontWeight: '600',
-		color: 'white',
-		marginBottom: 16,
+		fontWeight: "600",
+		color: "white",
+		marginBottom: 16
 	},
 	grid: {
-		flexDirection: 'row',
-		flexWrap: 'wrap',
-		backgroundColor: 'rgba(255, 255, 255, 0.1)',
+		flexDirection: "row",
+		flexWrap: "wrap",
+		backgroundColor: "rgba(255, 255, 255, 0.1)",
 		padding: 16,
 		borderRadius: 8,
-		gap: 4,
-	},
+		gap: 4
+	}
 });
