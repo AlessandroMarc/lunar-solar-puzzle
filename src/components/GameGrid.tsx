@@ -1,9 +1,9 @@
-
 import React from "react";
 import { View, StyleSheet } from "react-native";
 import { Cell } from "./Cell";
 import { GameConstraint } from "./GameConstraint";
-import type { CellValue, Constraint } from "./GameBoard";
+import type { CellValue } from "./GameBoard";
+import { Constraint } from "@/lib/constraints";
 
 interface GameGridProps {
 	board: CellValue[][];
@@ -20,11 +20,7 @@ export const GameGrid: React.FC<GameGridProps> = ({ board, constraints, onCellCl
 					<View key={rowIndex} style={styles.row}>
 						{row.map((cell, colIndex) => (
 							<View key={`${rowIndex}-${colIndex}`} style={styles.cellContainer}>
-								<Cell 
-									value={cell} 
-									onClick={() => onCellClick(rowIndex, colIndex)} 
-									isViolating={isViolatingCell(rowIndex, colIndex)} 
-								/>
+								<Cell value={cell} onClick={() => onCellClick(rowIndex, colIndex)} isViolating={isViolatingCell(rowIndex, colIndex)} />
 								{Object.entries(constraints).map(([key, constraint]) => {
 									const [pos1, pos2] = key.split("-");
 									const [row1, col1] = pos1.split(",").map(Number);
