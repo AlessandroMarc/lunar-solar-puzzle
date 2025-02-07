@@ -9,7 +9,7 @@ export default function App() {
 		Toast.show({
 			type: "success",
 			text1: "Congratulations!",
-			text2: "You've completed the puzzle!"
+			text2: "You've completed the puzzle!!"
 		});
 	};
 
