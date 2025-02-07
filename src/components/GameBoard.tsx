@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect, useCallback } from "react";
-import { View, Text, StyleSheet, Dimensions } from "react-native";
+import { View, Text, StyleSheet, Dimensions, Platform } from "react-native";
 import { Cell } from "./Cell";
 import { GameConstraint } from "./GameConstraint";
 import { validateMove, checkGameCompletion } from "../utils/gameLogic";
@@ -117,7 +118,6 @@ export const GameBoard: React.FC<GameBoardProps> = ({ size, onGameComplete }) =>
 			const newBoard = [...prevBoard.map(row => [...row])];
 			const currentValue = newBoard[row][col];
 
-			// Cycle through values: null -> sun -> moon -> null
 			let newValue: CellValue = null;
 			if (currentValue === null) newValue = "sun";
 			else if (currentValue === "sun") newValue = "moon";
@@ -136,26 +136,32 @@ export const GameBoard: React.FC<GameBoardProps> = ({ size, onGameComplete }) =>
 	return (
 		<View style={styles.container}>
 			<Text style={styles.moveCount}>Moves: {moveCount}</Text>
-			<View style={[styles.grid, { width: Math.min(Dimensions.get("window").width - 32, 400) }]}>
-				{board.map((row, rowIndex) => (
-					<React.Fragment key={rowIndex}>
-						{row.map((cell, colIndex) => (
-							<React.Fragment key={`${rowIndex}-${colIndex}`}>
-								<Cell value={cell} onClick={() => handleCellClick(rowIndex, colIndex)} isViolating={isViolatingCell(rowIndex, colIndex)} />
-								{Object.entries(constraints).map(([key, constraint]) => {
-									const [pos1, pos2] = key.split("-");
-									const [row1, col1] = pos1.split(",").map(Number);
-									const [row2, col2] = pos2.split(",").map(Number);
+			<View style={styles.gridContainer}>
+				<View style={styles.grid}>
+					{board.map((row, rowIndex) => (
+						<View key={rowIndex} style={styles.row}>
+							{row.map((cell, colIndex) => (
+								<View key={`${rowIndex}-${colIndex}`} style={styles.cellContainer}>
+									<Cell 
+										value={cell} 
+										onClick={() => handleCellClick(rowIndex, colIndex)} 
+										isViolating={isViolatingCell(rowIndex, colIndex)} 
+									/>
+									{Object.entries(constraints).map(([key, constraint]) => {
+										const [pos1, pos2] = key.split("-");
+										const [row1, col1] = pos1.split(",").map(Number);
+										const [row2, col2] = pos2.split(",").map(Number);
 
-									if (row1 === rowIndex && col1 === colIndex) {
-										return <GameConstraint key={`constraint-${key}`} type={constraint.type} position={constraint.position} />;
-									}
-									return null;
-								})}
-							</React.Fragment>
-						))}
-					</React.Fragment>
-				))}
+										if (row1 === rowIndex && col1 === colIndex) {
+											return <GameConstraint key={`constraint-${key}`} type={constraint.type} position={constraint.position} />;
+										}
+										return null;
+									})}
+								</View>
+							))}
+						</View>
+					))}
+				</View>
 			</View>
 		</View>
 	);
@@ -164,7 +170,8 @@ export const GameBoard: React.FC<GameBoardProps> = ({ size, onGameComplete }) =>
 const styles = StyleSheet.create({
 	container: {
 		alignItems: "center",
-		padding: 16
+		padding: 16,
+		width: "100%"
 	},
 	moveCount: {
 		fontSize: 20,
@@ -172,12 +179,27 @@ const styles = StyleSheet.create({
 		color: "white",
 		marginBottom: 16
 	},
-	grid: {
-		flexDirection: "row",
-		flexWrap: "wrap",
+	gridContainer: {
+		width: "100%",
+		maxWidth: 400,
+		aspectRatio: 1,
 		backgroundColor: "rgba(255, 255, 255, 0.1)",
 		padding: 16,
-		borderRadius: 8,
+		borderRadius: 8
+	},
+	grid: {
+		flex: 1,
+		width: "100%"
+	},
+	row: {
+		flex: 1,
+		flexDirection: "row",
 		gap: 4
+	},
+	cellContainer: {
+		flex: 1,
+		aspectRatio: 1,
+		marginHorizontal: 2,
+		position: "relative"
 	}
 });

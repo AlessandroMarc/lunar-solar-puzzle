@@ -1,5 +1,6 @@
+
 import React from "react";
-import { TouchableOpacity, StyleSheet } from "react-native";
+import { TouchableOpacity, StyleSheet, Platform } from "react-native";
 import type { CellValue } from "./GameBoard";
 import { Feather } from "@expo/vector-icons";
 
@@ -10,8 +11,6 @@ interface CellProps {
 }
 
 export const Cell: React.FC<CellProps> = ({ value, onClick, isViolating = false }) => {
-	console.log("Rendering cell with value:", value, "isViolating:", isViolating);
-
 	return (
 		<TouchableOpacity
 			onPress={onClick}
@@ -39,8 +38,7 @@ export const Cell: React.FC<CellProps> = ({ value, onClick, isViolating = false 
 
 const styles = StyleSheet.create({
 	cell: {
-		width: 48,
-		height: 48,
+		flex: 1,
 		borderRadius: 8,
 		alignItems: "center",
 		justifyContent: "center",
